@@ -1,0 +1,45 @@
+---
+apiVersion: v1
+kind: Deployment
+metadata:
+  name: myapp
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ngnix
+  template:
+    metadata:
+      labels:
+        app: ngnix
+    spec:
+      containers:
+      - name: con1
+        image: krishna/ipiimage:appimage
+        ports:
+        - containerPort: 80
+        #configmap and secret reference
+        envFrom:
+        - configMapRef:
+            name: bankapp-config
+      # Rsource Quota reference
+      resources:
+        requests:
+          cpu: "100m"
+          memory: 128Mi
+        limits:
+          cpu: "200m"
+          memory: "256Mi"
+          livenessprobe:
+            httpGet: 
+            path: /
+            port: 80
+            initialDelaySeconds: 30
+            periodSeconds: 5
+
+            readinessProbe:
+              httpGet:
+                path: /
+                port: 80
+                initialDelaySeconds: 10
+                periodSeconds: 5
